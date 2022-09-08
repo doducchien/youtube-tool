@@ -73,7 +73,10 @@ def try_hard(lock):
             print("Number account success is: {}".format(count))
             lock.release()
             time.sleep(10)
-        except: print("Create profile fail!")
+        except Exception as e: 
+            print("Oops!", e.__class__, "occurred.")
+            print("Create profile fail!")
+    driver.close()
 
 if __name__ == "__main__":
     count = 0
@@ -94,7 +97,7 @@ if __name__ == "__main__":
     t2.join()
     t3.join()
     #t4.join()
-
+    
     print("FINISH")
 
 
