@@ -10,5 +10,14 @@ gl = GoLogin({
 # print(type(gl))
 debugger_address  = gl.start()
 
-for property in [a for a in dir(debugger_address) if not a.startswith('__')]:
-    print("{}: {}".format(gl, getattr(gl, property)))
+# for property in [a for a in dir(debugger_address) if not a.startswith('__')]:
+#     print("{}: {}".format(gl, getattr(gl, property)))
+gl.stop()
+
+
+if __name__ == "__main__":
+
+    try:
+        1/0
+    except: print("error")
+    print("ok")

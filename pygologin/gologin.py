@@ -176,9 +176,9 @@ class GoLogin(object):
         }
         # print('profile size=', os.stat(self.profile_zip_path_upload).st_size)
 
-        signedUrl = requests.get(API_URL + '/browser/' + self.profile_id + '/storage-signature', headers=headers).content.decode('utf-8')
+        # signedUrl = requests.get(API_URL + '/browser/' + self.profile_id + '/storage-signature', headers=headers).content.decode('utf-8')
 
-        requests.put(signedUrl, data=open(self.profile_zip_path_upload, 'rb'))
+        # requests.put(signedUrl, data=open(self.profile_zip_path_upload, 'rb'))
 
         # print('commit profile complete')
 
