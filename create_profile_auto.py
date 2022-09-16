@@ -1,12 +1,21 @@
+import multiprocessing
+import multiprocessing.pool
 from undetected_chromedriver import Chrome,ChromeOptions
 from selenium.webdriver.common.by import By
 import time
 import random
-
-import threading
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+class NoDaemonProcess(multiprocessing.Process):
+    # make 'daemon' attribute always return False
+    def _get_daemon(self):
+        return False
+    def _set_daemon(self, value):
+        pass
+    daemon = property(_get_daemon, _set_daemon)
+class MyPool(multiprocessing.pool.Pool):
+    Process = NoDaemonProcess
 list_total_count = []
 
 def exit_when_error(driver, number_thread, e):
@@ -15,7 +24,7 @@ def exit_when_error(driver, number_thread, e):
     driver.close()
     driver.quit()
 
-def try_hard(lock, number_thread):
+def try_hard(number_thread):
     target_account = 30
     current_account = 0
     while (current_account < target_account):
@@ -129,22 +138,30 @@ def try_hard(lock, number_thread):
         driver.close()
         driver.quit()
 
+
+
+
+    
+# Python program to understand 
+# the concept of pool
+import multiprocessing
+import os
+  
+def square(n):
+    print("Worker process id for {0}: {1}".format(n, os.getpid()))
+    return (n*n)
+  
 if __name__ == "__main__":
-    count = 0
 
-    lock = threading.Lock()
-    total_thread = 2
-    list_thread = []
-    for i in range(total_thread):
-        list_thread.append(threading.Thread(target=try_hard, args=(lock,i)))
-        list_total_count.append(0)
-
-    for thread_item in list_thread: thread_item.start()
-    for thread_item in list_thread: thread_item.join()
-
-    
-    print("FINISH", "TOTAL:", sum(list_total_count))
-
-
-    
-
+    # input list
+    mylist = [1,2,3,4,5]
+  
+    # creating a pool object
+    p = MyPool(5)
+    p.map(try_hard, [random.randint(1, 5) for x in range(5)])
+    p.close()
+    p.join()
+    # map list to target function
+    # result = p.map(square, mylist)
+  
+    # print(result)

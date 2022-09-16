@@ -14,8 +14,7 @@ import socket
 import random
 
 from pygologin.extensionsManager import *
-
-from gl.response import browser_data
+# from extensionsManager import *
 
 
 
@@ -88,9 +87,9 @@ class GoLogin(object):
         
         tz = self.tz.get('timezone')
         chromeExtensions = self.profile.get('chromeExtensions')
+        paths = ''
         if chromeExtensions and len(chromeExtensions)>0:
             paths = self.loadExtensions()
-
         params = [
         self.executablePath,
         '--remote-debugging-port='+str(self.port),
@@ -99,7 +98,9 @@ class GoLogin(object):
         '--tz='+tz, 
         '--gologin-profile='+self.profile_name, 
         '--lang=en-US',
+        '--load-extension='+ ','.join(paths.split('\n')) 
         ]
+        # print("Params:", params)
 
         if proxy:
             hr_rules = '"MAP * 0.0.0.0 , EXCLUDE %s"'%(proxy_host)
@@ -110,19 +111,23 @@ class GoLogin(object):
             params.append(param)
 
         if sys.platform == "darwin":
-            subprocess.Popen(params)
+            pro = subprocess.Popen(params)
         else:
-            subprocess.Popen(params, start_new_session=True)
+            pro = subprocess.Popen(params, start_new_session=True)
 
         try_count = 1
         url = str(self.address) + ':' + str(self.port)
         while try_count<100:
             try:
                 data = requests.get('http://'+url+'/json').content
+                # print(pro.pid)
+                # pro.kill()
+                # pro.terminate()
                 break
             except:
                 try_count += 1
                 time.sleep(1)
+        print('url:', url)
         return url
 
     def start(self):
@@ -436,14 +441,14 @@ class GoLogin(object):
         json.dump(preferences, pfile)
 
     def createStartup(self):
-        if self.local==False and os.path.exists(self.profile_path):
-            try:
-                shutil.rmtree(self.profile_path)
-            except:
-                print("error removing profile", self.profile_path)
+        # if self.local==False and os.path.exists(self.profile_path):
+        #     try:
+        #         shutil.rmtree(self.profile_path)
+        #     except:
+        #         print("error removing profile", self.profile_path)
         self.profile = self.getProfile()
-        if self.local==False:
-            self.downloadProfileZip()
+        # if self.local==False:
+        #     self.downloadProfileZip()
         self.updatePreferences()
         
         return self.profile_path

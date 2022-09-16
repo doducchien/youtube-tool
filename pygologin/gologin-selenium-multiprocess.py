@@ -1,6 +1,6 @@
 import time
 import os
-from multiprocessing import Pool
+from multiprocessing import Pool, freeze_support
 from sys import platform
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -32,19 +32,25 @@ def scrap(profile):
 	gl.stop()
 
 profiles = [
-	{'profile_id': 'profile_id_1', 'port': 3500}, 
-	{'profile_id': 'profile_id_2', 'port': 3501},
-	{'profile_id': 'profile_id_3', 'port': 3502},
+	{'profile_id': '631adb27695b6700fe16a94f', 'port': 3500}, 
+	{'profile_id': '631adad24a802fed34e0d034', 'port': 3501},
+	{'profile_id': '631ad9ff58113736c902759f', 'port': 3502},
+	{'profile_id': '63187916e336480b6f8aed82', 'port': 3503},
+	{'profile_id': '63187a1e88e2ee2e6fcd1165', 'port': 3504},
+	{'profile_id': '63187ab57addf177e54cb465', 'port': 3505},
+	{'profile_id': '6318d07867ebfd6265cc2b14', 'port': 3506},
+
 	]
 
+if __name__ == '__main__':
+	freeze_support()
+	with Pool(8) as p:
+		p.map(scrap, profiles)
 
-with Pool(3) as p:
-	p.map(scrap, profiles)
 
-
-if platform == "win32":
-	os.system('taskkill /im chrome.exe /f')
-	os.system('taskkill /im chromedriver.exe /f')
-else:
-	os.system('killall -9 chrome')
-	os.system('killall -9 chromedriver')
+	if platform == "win32":
+		os.system('taskkill /im chrome.exe /f')
+		os.system('taskkill /im chromedriver.exe /f')
+	else:
+		os.system('killall -9 chrome')
+		os.system('killall -9 chromedriver')
