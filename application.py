@@ -16,7 +16,7 @@ from pygologin.gologin import GoLogin
 from sys import platform
 
 localhost = 'http://localhost:2024'
-url = 'https://www.youtube.com/watch?v=dd4oV9pLL4c&list=PLiHcN6JFj2GoncrnWMES7hfUbbVWOCZnF'
+url = 'https://www.youtube.com'
 size = 4
 page = 0
 
@@ -43,66 +43,82 @@ def fetch_profiles():
 
 def try_hard(profile):
     pid = os.getpid()
+    port = profile['port']
+    id = profile['id']
+    driver_exe = profile['driver']
+    debugger_address = '127.0.0.1:{}'.format(port)
+    p = subprocess.Popen(path_chrome.format(port, id), stdout=subprocess.PIPE, shell=True)
     try:
-        # gl = GoLogin({
-        #     'token': '123',
-        #     'profile_id': profile['id'],
-        #     'port': profile['port']
-        # })
-        port = profile['port']
-        id = profile['id']
-        debugger_address = '127.0.0.1:{}'.format(port)
-
-        p = subprocess.Popen(path_chrome.format(port, id), stdout=subprocess.PIPE, shell=True)
         time.sleep(2)
         print('debugger_address: ',debugger_address)
         options = Options()
         options.add_experimental_option('debuggerAddress', debugger_address)
-        driver = Chrome(executable_path= 'chromedriver.exe', options=options)
-        print("haahah")
+        driver = Chrome(executable_path= driver_exe, options=options)
         driver.get(url)
-        driver.implicitly_wait(18)
-        count = 0
+        time.sleep(18)
+        try:
+            search = driver.find_element(By.XPATH, "//input[@placeholder='Tìm kiếm']")
+            print(search)
+            time.sleep(2)
+            search.send_keys('pubg mobile đứng trên mái nhà')
+            search_icon = driver.find_element(By.ID, 'search-icon-legacy')
+            time.sleep(2)
+            search_icon.click()
+            time.sleep(7)
+        except Exception as e:
+            print("eee:", e)
+        count = 0 
         while count < 10:
-
             try:
-                play_btn = driver.find_element(By.CLASS_NAME, 'ytp-large-play-button')
-                time.sleep(2)
-                play_btn.click()
+                my_video = driver.find_element(By.XPATH, '//a[@href="/watch?v=VuY5rVmlMyI"]')
+                my_video.click()
                 break
-            except: 
-                print('No found play button')
-                count += 1
-                if count == 5: 
-                    driver.close()
-                    p.terminate()
-                    return 0
+            except Exception as e:
+                print('e1:', e)
+                count+=1
+
+        # count = 0
+        # while count < 10:
+
+        #     try:
+        #         play_btn = driver.find_element(By.CLASS_NAME, 'ytp-large-play-button')
+        #         time.sleep(2)
+        #         play_btn.click()
+        #         break
+        #     except: 
+        #         print('No found play button')
+        #         count += 1
+        #         if count == 5: 
+        #             driver.close()
+        #             p.terminate()
+        #             return 0
 
 
-        time.sleep(115)
+        time.sleep(250)     
         driver.close()
         return 1
     except Exception as e:
         print("exception:", e)
-        driver.close()
         p.terminate()
         return 0
 
 profiles = fetch_profiles()
 ports = [22006, 22007, 22008, 22009, 22010, 22011, 22012, 22013, 22014, 22015]
-def mapPortToProfile(port, profile):
+drivers = ['c1.exe', 'c2.exe', 'c3.exe', 'c4.exe']
+def mapPortToProfile(port, profile, driver):
     profile['port'] = port
+    profile['driver'] = driver
     return profile
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
-    i = 90
+    i = 700
     total_view = 0
     while True:
         if i == 4600: break
         changeIp()
-        with multiprocessing.Pool(8) as p:
-            mappedProfiles = map(mapPortToProfile, ports, profiles[i: i + 5])
+        with multiprocessing.Pool(4) as p:
+            mappedProfiles = map(mapPortToProfile, ports, profiles[i: i + 4], drivers)
             result = p.map(try_hard, mappedProfiles)
         total_view += sum(result)
         i+= 5
